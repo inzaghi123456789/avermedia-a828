@@ -1,0 +1,9 @@
+
+AVerMedia AVerTV USB Hybrid+FM supports the following API.
+
+Video for Linux 2 (V4L2): for analog TV
+Linux DVB: for digital TV
+
+Please consult their specifications if developing applications supporting
+AVerMedia TV solutions.
+

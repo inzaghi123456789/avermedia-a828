@@ -1,0 +1,185 @@
+
+To watch TV programs with AVerTV USB Hybrid+FM, you need TV applications.
+Some popular TV applications are listed below for your reference.
+
+========================
+Kaffeine
+========================
+
+Kaffeine is a digital TV application for watching DVB-T programs.
+Please refer to the following website for download and installation:
+http://kaffeine.kde.org
+
+Ubuntu Linux is tested with Kaffeine and works with our driver.
+To use Kaffeine in Ubuntu, please install two packages:
+
+	kaffeine, xine-ui
+
+Do the following at the terminal window to install the packages:
+
+	$ sudo apt-get install kaffeine xine-ui
+
+
+========================
+MPlayer
+========================
+
+MPlayer is a multimedia player capable of supporting variety of media sources.
+In this case, MPlayer can be used for watching NTSC/PAL/SECAM/DVB-T TV programs.
+TV audio is supported by MPlayer directly.
+
+Ubuntu Linux has been tested with MPlayer and works with our driver.
+To use MPlayer in Ubuntu, please install by doing the following at the terminal
+window:
+
+	$ sudo apt-get install mplayer
+
+
+To watch NTSC TV programs, for example, please do the following:
+
+	$ mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:freq=409250:outfmt=YUY2
+
+
+To watch PAL TV programs, for example, please do the following:
+
+	$ mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=0:freq=147250:outfmt=YUY2
+
+
+The above example can also be used in the case of external inputs such as
+composite and S-Video.
+
+If video signal is from composite and is NTSC:
+
+    $  mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:outfmt=YUY2:input=1
+
+If video signal is from S-Video and is NTSC:
+
+    $  mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:outfmt=YUY2:input=2
+
+
+If video signal is from composite and is PAL:
+
+    $  mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=0:outfmt=YUY2:input=1
+
+If video signal is from S-Video and is PAL:
+
+    $  mplayer tv:// -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=0:outfmt=YUY2:input=2
+
+
+MPlayer also supports receiving FM radio from our tuner products.
+
+    $ mplayer radio://104.9/capture -radio device=/dev/radio0:adevice=hw=1,0 -rawaudio rate=48000
+
+This example receives FM radio broadcast from 104.9MHz. Note that MPlayer has unidentified issues with receiving
+FM radio on some platforms. This causes the above example to successfuly execute but no sound can be heard.
+
+
+Please note that the ALSA audio device specified in the above examples may change, depending on the audio hardware
+available in the system. For a listing of audio devices, please do:
+
+    $ cat /proc/asound/pcm
+    00-02: ALC883 Analog : ALC883 Analog : capture 1
+    00-01: ALC883 Digital : ALC883 Digital : playback 1 : capture 1
+    00-00: ALC883 Analog : ALC883 Analog : playback 1 : capture 1
+    01-00: H826 PCM : H826 : capture 1
+
+In this case, the audio device from H826 tuner must be specified as "adevice=hw.1,0".
+
+
+To watch DVB-T TV programs, please fist use "dvbscan" to perform channel scan
+and copy the resulting program list into ~/.mplayer/channels.conf.
+Then issue the following command:
+
+    $ mplayer dvb://BBC
+
+In this case there must be a program name called "BBC" in ~/.mplayer/channels.conf.
+
+Please also note that MPlayer provides a "slave" mode in which commands can be
+issued to mplayer to change
+TV channel and other settings as well. A list of commands can be obtained by
+running the following commands:
+
+    $ mplayer -input cmdlist
+
+
+For detailed usage of MPlayer, please refer to the official MPlayer website:
+
+	http://www.mplayerhq.hu
+
+For detailed information of "dvbscan", please refer to the following website:
+
+    http://www.linuxtv.org/wiki/index.php/Scan
+
+
+========================
+MEncoder
+========================
+
+mencoder (MPlayer's Movie Encoder) is a simple movie encoder,  designed
+to encode MPlayer-playable movies (see above) to other MPlayer-playable
+formats (see below).
+
+Ubuntu Linux has been tested with MEncoder and works with our driver.
+To use MEncoder in Ubuntu, please install by doing the following at the terminal
+window:
+
+    $ sudo apt-get install mencoder
+
+
+To record "test.avi" in mpeg4 format from composite, for example, please do the following:
+
+    $ mencoder tv:// -o test.avi -oac copy -ovc lavc -lavcopts vcodec=mpeg4 -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:input=1:outfmt=YUY2
+
+To record "test.avi" in raw data format from SVideo, for example, please do the following:
+
+    $ mencoder tv:// -o test.avi -oac copy -ovc copy -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:input=1:outfmt=YUY2 
+
+
+To record "tv55.avi" in raw data format from TV channel 55, for example, please do the following:
+
+	$ mencoder tv:// -o tv55.avi -ovc copy -oac copy -tv driver=v4l2:device=/dev/video0:alsa:adevice=hw.1,0:amode=1:audiorate=48000:forceaudio:volume=100:immediatemode=0:normid=12:outfmt=YUY2:input=0:chanlist=us-cable:channel=55:buffersize=16
+
+
+For detailed usage of MEncoder, please refer to the official MEncoder website:
+
+    http://www.mplayerhq.hu
+
+
+========================
+TVTime
+========================
+
+TVTime is an analog TV application for watching NTSC/PAL/SECAM tv programs.
+Please refer to the following website for download and installation:
+
+http://tvtime.sourceforge.net
+
+Ubuntu Linux is tested with TVTime and works with our driver. Although, 
+TVTime does not support TV audio with our driver. To get audio from TV,
+issue the following command while watch TVTime:
+
+	$ arecord -D hw:1,0 -r 48000 -c 2 -f S16_LE | aplay -
+
+Please refer to ALSA documents for help with arecord and aplay commands.
+Also refer to the following Wiki pages for ALSA and TV audio related issues:
+
+http://www.linuxtv.org/v4lwiki/index.php/Saa7134-alsa
+
+
+Besides using arecord and aplay, using "sox" is also a good idea.
+
+First use "pavucontrol" to discover your audio hardware, including A827/H826
+and the sound card.
+
+For Ubuntu 8.10:
+
+    $ sox -c 2 -s -w -r 48000 -t alsa hw:0 -t alsa -w -r 32000 front:2
+
+
+For Ubuntu 9.04:
+
+    $ sox -c 2 -s -r 48000 -t alsa hw:1 -t alsa -r 48000 -d
+
+
+Please refer to the documentations of sox for detailed usage.
+
