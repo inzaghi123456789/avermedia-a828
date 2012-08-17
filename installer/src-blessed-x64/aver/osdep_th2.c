@@ -75,9 +75,12 @@ shall govern.
 *********************************************************************************/
 #include <linux/signal.h>
 #include <linux/version.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 #include <linux/smp_lock.h>
+#endif
 #include <linux/sched.h> 
 #include "osdep_th2.h"
+#include "osdep.h"
 
 
 int SysKernelThread(void (*func)(void *),void *thObj)
@@ -87,7 +90,7 @@ int SysKernelThread(void (*func)(void *),void *thObj)
 
 int SysSetThreadName(const char *name) 
 {
-        lock_kernel();
+	SysLockKernel();
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,61)
         daemonize();
         sigfillset(&current->blocked);
@@ -97,7 +100,7 @@ int SysSetThreadName(const char *name)
         allow_signal(SIGTERM);
 #endif
         siginitsetinv(&current->blocked, sigmask(SIGKILL)|sigmask(SIGINT)|                        sigmask(SIGTERM));
-        unlock_kernel();
+        SysUnlockKernel();
 
 	return 0;
 }

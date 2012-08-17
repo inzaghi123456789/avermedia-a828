@@ -86,7 +86,9 @@ shall govern.
 #include <linux/errno.h>
 #include <linux/sched.h>
 #include <linux/kref.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 #include <linux/smp_lock.h>
+#endif
 #include <linux/proc_fs.h>
 #include <linux/list.h>
 #include <linux/kdev_t.h>
@@ -432,11 +434,19 @@ int SysSemInit(pSemaphore *sem, enum sem_type type)
 	if( !tmp ) return -ENOMEM;
 	
 	if(st_Mutex == type) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 		init_MUTEX(tmp);
+#else
+		sema_init(tmp, 1);
+#endif
 		*sem = (pSemaphore) tmp;
 	}
 	else if(st_MutexLocked == type) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 		init_MUTEX_LOCKED(tmp);
+#else
+		sema_init(tmp, 1);
+#endif
 		*sem = (pSemaphore) tmp;
 	}
 	else {
@@ -1067,14 +1077,29 @@ void SysKrefFree(pKref kref)
 	kfree(kref);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
+#else
+static DEFINE_MUTEX(dvbdev_mutex);
+static spinlock_t the_lock=__SPIN_LOCK_UNLOCKED(the_lock);
+#endif
 void SysLockKernel()
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 	lock_kernel();
+#else
+	spin_lock_irq(&the_lock);
+	mutex_lock(&dvbdev_mutex);
+#endif
 }
 
 void SysUnlockKernel()
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 	unlock_kernel();
+#else
+	mutex_unlock(&dvbdev_mutex);
+	spin_unlock_irq(&the_lock);
+#endif
 }
 
 unsigned long SysCopyToUser(void *to, const void *from, unsigned long n)

@@ -81,7 +81,9 @@ shall govern.
 #include <linux/pci.h>
 #include <linux/init.h>
 #include <linux/list.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39) 
 #include <linux/smp_lock.h>
+#endif
 #include <linux/fs.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18) 
@@ -189,8 +191,10 @@ int SysVideoDevRegister(const char *name, unsigned int type,
 		devtype = VFL_TYPE_VBI; break;
 	case vdtRadio:
 		devtype = VFL_TYPE_RADIO; break;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37) 
 	case vdtTeletext:
 		devtype = VFL_TYPE_VTX; break;
+#endif
 	default:
 		return -EINVAL;
 	}
@@ -248,12 +252,14 @@ int SysVideoDevRegister(const char *name, unsigned int type,
 		cont->vfd->type = VID_TYPE_TUNER;
 #endif
 		break;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,37) 
         case vdtTeletext:
                 devtype = VFL_TYPE_VTX;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27) 
 		cont->vfd->type = VID_TYPE_TUNER | VID_TYPE_TELETEXT;
 #endif
 		break;
+#endif
         default:
                 return -EINVAL;
         }
